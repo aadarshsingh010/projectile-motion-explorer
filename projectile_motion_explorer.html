@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projectile Motion Explorer | Virtual Physics Laboratory</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151f32',
+                            950: '#090d16'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .mono { font-family: 'Fira Code', monospace; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Navigation / Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-rocket text-white text-lg animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Projectile Motion Explorer</h1>
+                    <p class="text-xs text-slate-400">Virtual Physics Laboratory & NSEP Prep</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="switchTab('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-cyan-400 bg-cyan-950/50 border border-cyan-800/50" data-target="home"><i class="fa-solid fa-house mr-1.5"></i> Home</button>
+                <button onclick="switchTab('lab')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-target="lab"><i class="fa-solid fa-flask mr-1.5"></i> Simulation Lab</button>
+                <button onclick="switchTab('graphs')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-target="graphs"><i class="fa-solid fa-chart-line mr-1.5"></i> Graphs & Analysis</button>
+                <button onclick="switchTab('theory')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-target="theory"><i class="fa-solid fa-book-open mr-1.5"></i> Theory & Derivations</button>
+                <button onclick="switchTab('experiment')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-target="experiment"><i class="fa-solid fa-clipboard-check mr-1.5"></i> Experiment Lab</button>
+                <button onclick="switchTab('tests')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-target="tests"><i class="fa-solid fa-vial-circle-check mr-1.5"></i> Scientific Tests</button>
+            </nav>
+            <div class="flex items-center space-x-2">
+                <button onclick="switchTab('lab')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-sm shadow-lg shadow-cyan-500/20 transition transform active:scale-95">Start Lab</button>
+            </div>
+        </div>
+        <!-- Mobile Subnav Bar -->
+        <div class="flex md:hidden overflow-x-auto px-4 py-2 bg-slate-900 border-t border-slate-800 space-x-2">
+            <button onclick="switchTab('home')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-cyan-950 text-cyan-400 border border-cyan-800" data-target="home">Home</button>
+            <button onclick="switchTab('lab')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300" data-target="lab">Simulation</button>
+            <button onclick="switchTab('graphs')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300" data-target="graphs">Graphs</button>
+            <button onclick="switchTab('theory')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300" data-target="theory">Theory</button>
+            <button onclick="switchTab('experiment')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300" data-target="experiment">Experiments</button>
+            <button onclick="switchTab('tests')" class="nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300" data-target="tests">Tests</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- TAB 1: HOME / INTRODUCTION -->
+        <section id="view-home" class="view-section space-y-8 animate-fadeIn">
+            <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-3xl space-y-6">
+                    <span class="inline-flex items-center space-x-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase">
+                        <i class="fa-solid fa-atom"></i> <span>NSEP & Physics Research Suite</span>
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Master Projectile Motion with <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Precision Physics</span>
+                    </h2>
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                        A rigorous browser-based virtual laboratory built for serious physics enthusiasts and competitive exam aspirants. Experiment with real-time variables, analyze exact mathematical derivations, evaluate trajectory graphs, and test physical hypotheses without air resistance constraints.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('lab')" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg shadow-cyan-500/25 flex items-center space-x-2 transition transform hover:-translate-y-0.5">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Launch Virtual Lab</span>
+                        </button>
+                        <button onclick="switchTab('theory')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold px-6 py-3 rounded-xl flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                            <span>Explore Theory & Formulas</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition group">
+                    <div class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Rigorous Calculations</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Handles both equal launch-landing heights and arbitrary initial height elevations using complete quadratic solutions for landing time $y(t) = 0$.
+                    </p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition group">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-chart-line text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Multi-Parameter Graphs</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Inspect real-time position vs time, velocity components ($v_x, v_y$), and overlay multiple trajectories of different launch angles for comparison.
+                    </p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500/50 transition group">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-vial text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Scientific Testing & CSV</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Execute automated verification suites (complementary angles, max range at 45°, gravity shifts) and export experimental trial logs.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MAIN SIMULATION LAB -->
+        <section id="view-lab" class="view-section hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Controls (4 Cols) -->
+                <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-6 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-cyan-400"></i>
+                            <span>Simulation Parameters</span>
+                        </h3>
+                        <button onclick="resetDefaults()" class="text-xs text-slate-400 hover:text-cyan-400 transition underline">Reset Defaults</button>
+                    </div>
+
+                    <!-- Sliders -->
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label for="speedRange" class="font-medium text-slate-300">Launch Speed ($v_0$)</label>
+                                <span class="mono text-cyan-400 font-semibold"><span id="speedVal">25.0</span> m/s</span>
+                            </div>
+                            <input type="range" id="speedRange" min="5" max="60" value="25" step="0.5" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label for="angleRange" class="font-medium text-slate-300">Launch Angle ($\theta$)</label>
+                                <span class="mono text-cyan-400 font-semibold"><span id="angleVal">45</span>°</span>
+                            </div>
+                            <input type="range" id="angleRange" min="0" max="90" value="45" step="1" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label for="heightRange" class="font-medium text-slate-300">Initial Height ($y_0$)</label>
+                                <span class="mono text-cyan-400 font-semibold"><span id="heightVal">0.0</span> m</span>
+                            </div>
+                            <input type="range" id="heightRange" min="0" max="50" value="0" step="1" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label for="gravityRange" class="font-medium text-slate-300">Gravity ($g$)</label>
+                                <span class="mono text-cyan-400 font-semibold"><span id="gravityVal">9.81</span> m/s²</span>
+                            </div>
+                            <input type="range" id="gravityRange" min="1.6" max="25" value="9.81" step="0.1" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                                <span>Moon (1.6)</span>
+                                <span>Earth (9.8)</span>
+                                <span>Jupiter (24.8)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toggles / Visual Options -->
+                    <div class="border-t border-slate-800 pt-4 space-y-3">
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Visualization Toggles</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer bg-slate-800/50 p-2 rounded-lg hover:bg-slate-800">
+                                <input type="checkbox" id="showVectors" checked class="accent-cyan-500 rounded">
+                                <span>Velocity Vectors</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer bg-slate-800/50 p-2 rounded-lg hover:bg-slate-800">
+                                <input type="checkbox" id="showGrid" checked class="accent-cyan-500 rounded">
+                                <span>Coordinate Grid</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer bg-slate-800/50 p-2 rounded-lg hover:bg-slate-800">
+                                <input type="checkbox" id="showTrail" checked class="accent-cyan-500 rounded">
+                                <span>Trajectory Trail</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer bg-slate-800/50 p-2 rounded-lg hover:bg-slate-800">
+                                <input type="checkbox" id="compareMode" class="accent-cyan-500 rounded">
+                                <span>Hold Compare</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Playback Controls -->
+                    <div class="border-t border-slate-800 pt-4 space-y-2">
+                        <div class="grid grid-cols-4 gap-2">
+                            <button id="playBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center transition">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button id="pauseBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-amber-600/20 flex items-center justify-center transition">
+                                <i class="fa-solid fa-pause"></i>
+                            </button>
+                            <button id="stepBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-blue-600/20 flex items-center justify-center transition" title="Step Forward">
+                                <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                            <button id="resetBtn" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-rose-600/20 flex items-center justify-center transition">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs text-slate-400">Simulation Speed</span>
+                            <select id="timeScale" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded-lg px-2 py-1 outline-none">
+                                <option value="0.25">0.25x (Slow)</option>
+                                <option value="0.5">0.5x</option>
+                                <option value="1" selected>1.0x (Real)</option>
+                                <option value="2">2.0x (Fast)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Canvas & Live Telemetry (8 Cols) -->
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- Canvas Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl relative overflow-hidden flex flex-col items-center">
+                        <div class="w-full flex items-center justify-between pb-3 mb-2 border-b border-slate-800">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-3 h-3 rounded-full bg-cyan-500 animate-ping"></span>
+                                <span class="font-semibold text-sm text-white">Live Virtual Canvas</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-xs font-mono text-slate-400">
+                                <span>Time: <strong id="telemetryTime" class="text-cyan-400">0.00</strong> s</span>
+                                <span>X: <strong id="telemetryX" class="text-cyan-400">0.00</strong> m</span>
+                                <span>Y: <strong id="telemetryY" class="text-cyan-400">0.00</strong> m</span>
+                            </div>
+                        </div>
+
+                        <!-- HTML5 Canvas -->
+                        <div class="w-full aspect-[2/1] bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800/80">
+                            <canvas id="simCanvas" class="w-full h-full cursor-crosshair"></canvas>
+                            <div id="canvasOverlayMsg" class="absolute inset-0 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs opacity-0 pointer-events-none transition duration-300">
+                                <span class="bg-cyan-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm shadow-xl">Simulation Completed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Results Dashboard -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                        <h3 class="font-bold text-white mb-4 flex items-center space-x-2">
+                            <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                            <span>Real-Time Telemetry & Results Dashboard</span>
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Flight Time ($T$)</div>
+                                <div class="text-lg font-bold text-cyan-400 mono mt-1" id="resTime">0.00</div>
+                                <div class="text-[10px] text-slate-500">seconds</div>
+                            </div>
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Max Height ($H$)</div>
+                                <div class="text-lg font-bold text-cyan-400 mono mt-1" id="resHeight">0.00</div>
+                                <div class="text-[10px] text-slate-500">metres</div>
+                            </div>
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Horizontal Range</div>
+                                <div class="text-lg font-bold text-cyan-400 mono mt-1" id="resRange">0.00</div>
+                                <div class="text-[10px] text-slate-500">metres</div>
+                            </div>
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Initial $v_x$</div>
+                                <div class="text-lg font-bold text-blue-400 mono mt-1" id="resVx">0.00</div>
+                                <div class="text-[10px] text-slate-500">m/s</div>
+                            </div>
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Initial $v_y$</div>
+                                <div class="text-lg font-bold text-blue-400 mono mt-1" id="resVy">0.00</div>
+                                <div class="text-[10px] text-slate-500">m/s</div>
+                            </div>
+                            <div class="bg-slate-800/60 border border-slate-700/50 p-3 rounded-xl text-center">
+                                <div class="text-[11px] text-slate-400 uppercase font-medium">Impact Speed</div>
+                                <div class="text-lg font-bold text-emerald-400 mono mt-1" id="resImpact">0.00</div>
+                                <div class="text-[10px] text-slate-500">m/s</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: GRAPHS & COMPARISONS -->
+        <section id="view-graphs" class="view-section hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4 gap-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                            <span>Analytical Graphs & Trajectory Comparisons</span>
+                        </h3>
+                        <p class="text-sm text-slate-400">Examine kinematic curves and analyze how angle variations impact range and altitude.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateGraphsData()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Refresh Graphs</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Graph Selection Tabs -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="switchGraphTab('pos')" class="graph-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-950 text-cyan-400 border border-cyan-800 transition" data-g="pos">Position vs Time ($x, y$)</button>
+                    <button onclick="switchGraphTab('vel')" class="graph-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 transition" data-g="vel">Velocity vs Time ($v_x, v_y$)</button>
+                    <button onclick="switchGraphTab('angles')" class="graph-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 transition" data-g="angles">Multi-Angle Comparison (30°, 45°, 60°)</button>
+                </div>
+
+                <!-- Graph Canvas Wrapper -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 aspect-[21/9] relative flex items-center justify-center">
+                    <canvas id="analysisCanvas" class="w-full h-full"></canvas>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400 bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                    <div>
+                        <strong class="text-slate-200 block mb-1"><i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> Key Observation (Position vs Time):</strong>
+                        Horizontal position $x(t)$ grows linearly due to constant $v_x$, whereas vertical position $y(t)$ follows a parabolic quadratic curve due to uniform gravitational acceleration downwards.
+                    </div>
+                    <div>
+                        <strong class="text-slate-200 block mb-1"><i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> Key Observation (Velocity vs Time):</strong>
+                        $v_x$ remains strictly constant throughout flight (ignoring air drag). $v_y$ decreases linearly, reaches $0$ exactly at maximum height $H$, and becomes negative during descent.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: THEORY AND DERIVATIONS -->
+        <section id="view-theory" class="view-section hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-8">
+                <div class="border-b border-slate-800 pb-4">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/50">NSEP Physics Curriculum</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-2">Theory, Kinematics & Rigorous Derivations</h2>
+                    <p class="text-slate-400 text-sm mt-1">Click on any core formula card to expand its step-by-step mathematical derivation.</p>
+                </div>
+
+                <!-- Formula Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Card 1: Velocity Components -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-cyan-500/50 transition cursor-pointer" onclick="toggleDeriv('deriv1')">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white">1. Initial Velocity Resolution</h3>
+                            <span class="text-cyan-400 text-xs font-mono bg-cyan-950 px-2 py-1 rounded border border-cyan-800">Expand <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                        </div>
+                        <p class="text-sm text-slate-300">Resolving initial launch speed $v_0$ at angle $\theta$ with horizontal:</p>
+                        <div class="bg-slate-900 p-3 rounded-lg text-center mono text-cyan-400 font-bold">
+                            $v_x = v_0 \cos\theta$ &nbsp;&nbsp;|&nbsp;&nbsp; $v_{y0} = v_0 \sin\theta$
+                        </div>
+                        <div id="deriv1" class="hidden text-xs text-slate-300 space-y-2 pt-2 border-t border-slate-800/80">
+                            <p><strong>Derivation:</strong> Using right-angled triangle trigonometry on velocity vector components:</p>
+                            <p>• Adjacent side along horizontal gives $v_x = v_0 \cos\theta$. Since $a_x = 0$, $v_x$ stays constant.</p>
+                            <p>• Opposite side along vertical gives $v_{y0} = v_0 \sin\theta$. Subject to downward acceleration $g$.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Position Equations -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-cyan-500/50 transition cursor-pointer" onclick="toggleDeriv('deriv2')">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white">2. Position Equations at Time $t$</h3>
+                            <span class="text-cyan-400 text-xs font-mono bg-cyan-950 px-2 py-1 rounded border border-cyan-800">Expand <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                        </div>
+                        <p class="text-sm text-slate-300">Kinematic equations of motion along $X$ and $Y$ axes:</p>
+                        <div class="bg-slate-900 p-3 rounded-lg text-center mono text-cyan-400 font-bold">
+                            $x(t) = v_0 \cos\theta \cdot t$ <br>
+                            $y(t) = y_0 + v_0 \sin\theta \cdot t - \frac{1}{2}gt^2$
+                        </div>
+                        <div id="deriv2" class="hidden text-xs text-slate-300 space-y-2 pt-2 border-t border-slate-800/80">
+                            <p><strong>Derivation:</strong> From Newton's Second Law with constant acceleration ($a_x = 0, a_y = -g$):</p>
+                            <p>• $x = x_0 + v_{x0}t + \frac{1}{2}a_x t^2 \implies x(t) = v_0\cos\theta \cdot t$ (assuming $x_0 = 0$).</p>
+                            <p>• $y = y_0 + v_{y0}t + \frac{1}{2}a_y t^2 \implies y(t) = y_0 + v_0\sin\theta \cdot t - \frac{1}{2}gt^2$.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Time of Flight & Max Height -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-cyan-500/50 transition cursor-pointer" onclick="toggleDeriv('deriv3')">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white">3. Time of Flight & Maximum Height</h3>
+                            <span class="text-cyan-400 text-xs font-mono bg-cyan-950 px-2 py-1 rounded border border-cyan-800">Expand <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                        </div>
+                        <p class="text-sm text-slate-300">For ground-to-ground ($y_0 = 0$):</p>
+                        <div class="bg-slate-900 p-3 rounded-lg text-center mono text-cyan-400 font-bold">
+                            $T = \frac{2v_0 \sin\theta}{g}$ &nbsp;&nbsp;|&nbsp;&nbsp; $H = \frac{v_0^2 \sin^2\theta}{2g}$
+                        </div>
+                        <div id="deriv3" class="hidden text-xs text-slate-300 space-y-2 pt-2 border-t border-slate-800/80">
+                            <p><strong>Derivation:</strong></p>
+                            <p>• <strong>Flight Time ($T$):</strong> Set $y(T) = 0$ in position equation $v_0\sin\theta T - \frac{1}{2}gT^2 = 0 \implies T(v_0\sin\theta - \frac{1}{2}gT) = 0$. Rejecting $T=0$, $T = \frac{2v_0\sin\theta}{g}$.</p>
+                            <p>• <strong>Max Height ($H$):</strong> At peak, vertical velocity $v_y = 0 \implies v_y^2 = v_{y0}^2 - 2gH = 0 \implies H = \frac{v_0^2\sin^2\theta}{2g}$.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Horizontal Range -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-cyan-500/50 transition cursor-pointer" onclick="toggleDeriv('deriv4')">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-white">4. Horizontal Range ($R$)</h3>
+                            <span class="text-cyan-400 text-xs font-mono bg-cyan-950 px-2 py-1 rounded border border-cyan-800">Expand <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                        </div>
+                        <p class="text-sm text-slate-300">Maximum horizontal displacement for $y_0 = 0$:</p>
+                        <div class="bg-slate-900 p-3 rounded-lg text-center mono text-cyan-400 font-bold">
+                            $R = \frac{v_0^2 \sin(2\theta)}{g}$
+                        </div>
+                        <div id="deriv4" class="hidden text-xs text-slate-300 space-y-2 pt-2 border-t border-slate-800/80">
+                            <p><strong>Derivation:</strong> Substitute total flight time $T$ into horizontal position equation $x(T)$:</p>
+                            <p>• $R = (v_0 \cos\theta) \cdot \left(\frac{2v_0 \sin\theta}{g}\right) = \frac{v_0^2 (2\sin\theta\cos\theta)}{g}$.</p>
+                            <p>• Using trigonometric identity $2\sin\theta\cos\theta = \sin(2\theta)$, we get $R = \frac{v_0^2 \sin(2\theta)}{g}$. Maximum range occurs at $\theta = 45^\circ$ where $\sin(90^\circ) = 1$.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Assumptions & Limitations -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-3">
+                    <h3 class="font-bold text-white text-sm uppercase tracking-wider text-cyan-400">Assumptions & Physical Limitations</h3>
+                    <ul class="list-disc list-inside text-xs text-slate-300 space-y-1.5">
+                        <li><strong>Uniform Gravity:</strong> Gravitational acceleration $g$ is assumed constant in magnitude and direction ($9.81\text{ m/s}^2$ downwards).</li>
+                        <li><strong>Zero Air Resistance:</strong> Drag forces ($F_d = \frac{1}{2}\rho v^2 C_d A$) and buoyant forces are ignored in this ideal model.</li>
+                        <li><strong>Flat Earth Approximation:</strong> Curvature of the Earth and Coriolis acceleration are neglected over short projectile ranges.</li>
+                        <li><strong>Point Mass:</strong> The projectile is treated as an idealized point mass without rotational inertia or aerodynamic lift (Magnus effect).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: EXPERIMENT & CHALLENGE MODE -->
+        <section id="view-experiment" class="view-section hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4 gap-4">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/50">Virtual Laboratory Mode</span>
+                        <h2 class="text-2xl font-bold text-white mt-2">Experiment & Data Recording Trials</h2>
+                        <p class="text-slate-400 text-sm mt-1">Run trials, record observations into data tables, and export your findings as CSV.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="recordTrial()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Record Current Trial</span>
+                        </button>
+                        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Export CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prediction Challenge Box -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+                    <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-bullseye text-cyan-400"></i>
+                        <span>Prediction Challenge: Can you guess the Range?</span>
+                    </h3>
+                    <p class="text-xs text-slate-300">Set your parameters in the Simulation Lab, predict the horizontal range ($R$) before running, and test your intuition.</p>
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <input type="number" id="userPrediction" placeholder="Enter predicted range (m)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg outline-none focus:border-cyan-500 mono w-52">
+                        <button onclick="checkPrediction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">Verify Prediction</button>
+                        <span id="predictionResult" class="text-xs font-semibold mono"></span>
+                    </div>
+                </div>
+
+                <!-- Trials Data Table -->
+                <div class="overflow-x-auto border border-slate-800 rounded-xl">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                <th class="p-3 font-semibold">Trial #</th>
+                                <th class="p-3 font-semibold">Speed $v_0$ (m/s)</th>
+                                <th class="p-3 font-semibold">Angle $\theta$ (°)</th>
+                                <th class="p-3 font-semibold">Height $y_0$ (m)</th>
+                                <th class="p-3 font-semibold">Gravity $g$ (m/s²)</th>
+                                <th class="p-3 font-semibold">Flight Time $T$ (s)</th>
+                                <th class="p-3 font-semibold">Max Height $H$ (m)</th>
+                                <th class="p-3 font-semibold">Range $R$ (m)</th>
+                                <th class="p-3 font-semibold text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trialsTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+                            <tr id="emptyTrialsRow">
+                                <td colspan="9" class="p-6 text-center text-slate-500 italic">No trials recorded yet. Click "Record Current Trial" to add data.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: SCIENTIFIC TESTS -->
+        <section id="view-tests" class="view-section hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4 gap-4">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/50">Quality Assurance & Physics Verification</span>
+                        <h2 class="text-2xl font-bold text-white mt-2">Automated Scientific Test Suite</h2>
+                        <p class="text-slate-400 text-sm mt-1">Verify core physical edge cases, symmetry laws, and mathematical accuracy before deployment.</p>
+                    </div>
+                    <button onclick="runAllScientificTests()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg shadow-cyan-500/20 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Run All Verification Tests</span>
+                    </button>
+                </div>
+
+                <!-- Test Results Container -->
+                <div id="testResultsList" class="space-y-3">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-400 flex items-center justify-between">
+                        <span>Click "Run All Verification Tests" to execute the 6 mandatory scientific checks.</span>
+                        <i class="fa-solid fa-vial text-slate-600"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+            <p>© 2026 Projectile Motion Explorer. Built for NSEP & Advanced Physics Education.</p>
+            <div class="flex items-center space-x-4">
+                <span class="flex items-center space-x-1.5 text-cyan-400"><i class="fa-solid fa-check-circle"></i> <span>Physics Engine Verified</span></span>
+                <span class="flex items-center space-x-1.5 text-emerald-400"><i class="fa-solid fa-bolt"></i> <span>Zero Air Resistance Model</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Navigation Tabs ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.target === tabId) {
+                    btn.className = "nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-cyan-400 bg-cyan-950/50 border border-cyan-800/50";
+                } else {
+                    btn.className = "nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800";
+                }
+            });
+
+            document.querySelectorAll('.nav-btn-m').forEach(btn => {
+                if(btn.dataset.target === tabId) {
+                    btn.className = "nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-cyan-950 text-cyan-400 border border-cyan-800";
+                } else {
+                    btn.className = "nav-btn-m px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap bg-slate-800 text-slate-300";
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(tabId === 'graphs') {
+                setTimeout(drawGraphsCanvas, 50);
+            }
+        }
+
+        // --- Physics Engine & Simulation State ---
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const analysisCanvas = document.getElementById('analysisCanvas');
+        const analysisCtx = analysisCanvas.getContext('2d');
+
+        let v0Input = document.getElementById('speedRange');
+        let angleInput = document.getElementById('angleRange');
+        let heightInput = document.getElementById('heightRange');
+        let gravityInput = document.getElementById('gravityRange');
+        
+        let speedVal = document.getElementById('speedVal');
+        let angleVal = document.getElementById('angleVal');
+        let heightVal = document.getElementById('heightVal');
+        let gravityVal = document.getElementById('gravityVal');
+
+        let playBtn = document.getElementById('playBtn');
+        let pauseBtn = document.getElementById('pauseBtn');
+        let stepBtn = document.getElementById('stepBtn');
+        let resetBtn = document.getElementById('resetBtn');
+
+        let showVectorsChk = document.getElementById('showVectors');
+        let showGridChk = document.getElementById('showGrid');
+        let showTrailChk = document.getElementById('showTrail');
+        let compareModeChk = document.getElementById('compareMode');
+        let timeScaleSel = document.getElementById('timeScale');
+
+        let currentTime = 0;
+        let isRunning = false;
+        let animationId = null;
+        let comparisonTrajectories = [];
+
+        // Resize canvases to container width cleanly
+        function resizeCanvases() {
+            if (canvas.parentElement) {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
+            if (analysisCanvas.parentElement) {
+                analysisCanvas.width = analysisCanvas.parentElement.clientWidth;
+                analysisCanvas.height = analysisCanvas.parentElement.clientHeight;
+            }
+            drawScene(currentTime);
+        }
+        window.addEventListener('resize', resizeCanvases);
+
+        // Core Physics Calculations
+        function getPhysicsData() {
+            const v0 = parseFloat(v0Input.value);
+            const thetaDeg = parseFloat(angleInput.value);
+            const y0 = parseFloat(heightInput.value);
+            const g = parseFloat(gravityInput.value);
+
+            const rad = (thetaDeg * Math.PI) / 180;
+            const vx = v0 * Math.cos(rad);
+            const vy0 = v0 * Math.sin(rad);
+
+            // Time of flight solving quadratic: y(t) = y0 + vy0*t - 0.5*g*t^2 = 0
+            // 0.5*g*t^2 - vy0*t - y0 = 0
+            let T = 0;
+            if (g > 0) {
+                const discriminant = (vy0 * vy0) + (2 * g * y0);
+                if (discriminant >= 0) {
+                    T = (vy0 + Math.sqrt(discriminant)) / g;
+                }
+            }
+
+            // Max height above ground y = 0
+            // Occurs when vy(t) = 0 => t_peak = vy0 / g
+            const tPeak = vy0 / g;
+            const H = y0 + vy0 * tPeak - 0.5 * g * tPeak * tPeak;
+            const R = vx * T;
+            const impactVy = vy0 - g * T;
+            const impactSpeed = Math.sqrt(vx * vx + impactVy * impactVy);
+
+            return { v0, thetaDeg, rad, y0, g, vx, vy0, T, H, R, impactSpeed };
+        }
+
+        // Update UI Labels and Telemetry
+        function updateUI() {
+            speedVal.textContent = parseFloat(v0Input.value).toFixed(1);
+            angleVal.textContent = parseFloat(angleInput.value).toFixed(0);
+            heightVal.textContent = parseFloat(heightInput.value).toFixed(1);
+            gravityVal.textContent = parseFloat(gravityInput.value).toFixed(2);
+
+            const phys = getPhysicsData();
+
+            document.getElementById('resTime').textContent = phys.T.toFixed(2);
+            document.getElementById('resHeight').textContent = phys.H.toFixed(2);
+            document.getElementById('resRange').textContent = phys.R.toFixed(2);
+            document.getElementById('resVx').textContent = phys.vx.toFixed(2);
+            document.getElementById('resVy').textContent = phys.vy0.toFixed(2);
+            document.getElementById('resImpact').textContent = phys.impactSpeed.toFixed(2);
+
+            document.getElementById('telemetryTime').textContent = currentTime.toFixed(2);
+            
+            const curX = phys.vx * currentTime;
+            const curY = Math.max(0, phys.y0 + phys.vy0 * currentTime - 0.5 * phys.g * currentTime * currentTime);
+            document.getElementById('telemetryX').textContent = curX.toFixed(2);
+            document.getElementById('telemetryY').textContent = curY.toFixed(2);
+        }
+
+        function resetDefaults() {
+            v0Input.value = 25;
+            angleInput.value = 45;
+            heightInput.value = 0;
+            gravityInput.value = 9.81;
+            currentTime = 0;
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            comparisonTrajectories = [];
+            updateUI();
+            resizeCanvases();
+        }
+
+        // --- Drawing Scene on Canvas ---
+        function drawScene(t) {
+            if (!canvas.width || !canvas.height) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const phys = getPhysicsData();
+            const padding = 60;
+            const drawWidth = canvas.width - (padding * 2);
+            const drawHeight = canvas.height - (padding * 2);
+
+            // Determine scaling factor to fit max range and max height nicely
+            const maxR = Math.max(50, phys.R * 1.1);
+            const maxH = Math.max(20, Math.max(phys.H, phys.y0) * 1.2);
+
+            const scaleX = drawWidth / maxR;
+            const scaleY = drawHeight / maxH;
+            const scale = Math.min(scaleX, scaleY);
+
+            const originX = padding;
+            const originY = canvas.height - padding;
+
+            // Draw Coordinate Grid
+            if (showGridChk.checked) {
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1;
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px Fira Code';
+
+                // Vertical grid lines
+                for (let x = 0; x <= maxR; x += Math.pow(10, Math.floor(Math.log10(maxR))) / 2) {
+                    const px = originX + x * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(px, padding);
+                    ctx.lineTo(px, originY);
+                    ctx.stroke();
+                    ctx.fillText(x.toFixed(0) + 'm', px - 10, originY + 15);
+                }
+
+                // Horizontal grid lines
+                for (let y = 0; y <= maxH; y += Math.pow(10, Math.floor(Math.log10(maxH))) / 2) {
+                    const py = originY - y * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(originX, py);
+                    ctx.lineTo(canvas.width - padding, py);
+                    ctx.stroke();
+                    ctx.fillText(y.toFixed(0) + 'm', originX - 35, py + 4);
+                }
+            }
+
+            // Draw Ground Line
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(originX - 10, originY);
+            ctx.lineTo(canvas.width - padding + 20, originY);
+            ctx.stroke();
+
+            // Draw Comparison Trajectories if active
+            if (comparisonTrajectories.length > 0) {
+                comparisonTrajectories.forEach((comp, idx) => {
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${0.3 + idx * 0.15})`;
+                    ctx.setLineDash([4, 4]);
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    for (let time = 0; time <= comp.T; time += 0.05) {
+                        const tx = comp.vx * time;
+                        const ty = Math.max(0, comp.y0 + comp.vy0 * time - 0.5 * comp.g * time * time);
+                        const px = originX + tx * scale;
+                        const py = originY - ty * scale;
+                        if (time === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                });
+            }
+
+            // Draw Current Trajectory Trail
+            if (showTrailChk.checked && t > 0) {
+                ctx.strokeStyle = '#06b6d4';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                const step = phys.T / 200;
+                for (let time = 0; time <= Math.min(t, phys.T); time += step) {
+                    const tx = phys.vx * time;
+                    const ty = Math.max(0, phys.y0 + phys.vy0 * time - 0.5 * phys.g * time * time);
+                    const px = originX + tx * scale;
+                    const py = originY - ty * scale;
+                    if (time === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            // Current projectile position
+            const clampedT = Math.min(t, phys.T);
+            const curX = phys.vx * clampedT;
+            const curY = Math.max(0, phys.y0 + phys.vy0 * clampedT - 0.5 * phys.g * clampedT * clampedT);
+            const ballPx = originX + curX * scale;
+            const ballPy = originY - curY * scale;
+
+            // Draw Velocity Vectors
+            if (showVectorsChk.checked) {
+                const curVx = phys.vx;
+                const curVy = phys.vy0 - phys.g * clampedT;
+                
+                // Vector scale
+                const vScale = 1.5;
+
+                // Horizontal vector (Cyan)
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(ballPx, ballPy);
+                ctx.lineTo(ballPx + curVx * vScale, ballPy);
+                ctx.stroke();
+
+                // Vertical vector (Emerald)
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(ballPx, ballPy);
+                ctx.lineTo(ballPx, ballPy - curVy * vScale); // note canvas Y is inverted
+                ctx.stroke();
+            }
+
+            // Draw Projectile Ball
+            ctx.fillStyle = '#f43f5e';
+            ctx.shadowColor = '#f43f5e';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(ballPx, ballPy, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset shadow
+
+            // Completion check
+            const overlay = document.getElementById('canvasOverlayMsg');
+            if (clampedT >= phys.T && phys.T > 0) {
+                overlay.classList.remove('opacity-0');
+            } else {
+                overlay.classList.add('opacity-0');
+            }
+        }
+
+        // --- Animation Loop ---
+        let lastTimestamp = 0;
+        function animateLoop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            if (isRunning) {
+                const phys = getPhysicsData();
+                const speedMultiplier = parseFloat(timeScaleSel.value);
+                currentTime += delta * speedMultiplier;
+
+                if (currentTime >= phys.T) {
+                    currentTime = phys.T;
+                    isRunning = false;
+                    cancelAnimationFrame(animationId);
+                }
+                updateUI();
+                drawScene(currentTime);
+                if (isRunning) {
+                    animationId = requestAnimationFrame(animateLoop);
+                }
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            const phys = getPhysicsData();
+            if (currentTime >= phys.T) currentTime = 0;
+            if (!isRunning) {
+                isRunning = true;
+                lastTimestamp = 0;
+                animationId = requestAnimationFrame(animateLoop);
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+        });
+
+        stepBtn.addEventListener('click', () => {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            const phys = getPhysicsData();
+            currentTime += 0.1;
+            if (currentTime > phys.T) currentTime = phys.T;
+            updateUI();
+            drawScene(currentTime);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            currentTime = 0;
+            updateUI();
+            drawScene(currentTime);
+        });
+
+        // Input listeners
+        [v0Input, angleInput, heightInput, gravityInput].forEach(inp => {
+            inp.addEventListener('input', () => {
+                if (!isRunning) {
+                    currentTime = 0;
+                }
+                updateUI();
+                drawScene(currentTime);
+            });
+            inp.addEventListener('change', () => {
+                if (compareModeChk.checked && !isRunning) {
+                    const phys = getPhysicsData();
+                    comparisonTrajectories.push({ ...phys });
+                    if (comparisonTrajectories.length > 4) comparisonTrajectories.shift();
+                }
+            });
+        });
+
+        [showVectorsChk, showGridChk, showTrailChk].forEach(chk => {
+            chk.addEventListener('change', () => drawScene(currentTime));
+        });
+
+        // --- Graphs Canvas Drawing ---
+        let currentGraphMode = 'pos';
+        
+        function updateGraphsData() {
+            drawGraphsCanvas();
+        }
+
+        function switchGraphTab(mode) {
+            currentGraphMode = mode;
+            document.querySelectorAll('.graph-tab-btn').forEach(btn => {
+                if(btn.dataset.g === mode) {
+                    btn.className = "graph-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-950 text-cyan-400 border border-cyan-800 transition";
+                } else {
+                    btn.className = "graph-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 transition";
+                }
+            });
+            drawGraphsCanvas();
+        }
+
+        function drawGraphsCanvas() {
+            if (!analysisCanvas.width || !analysisCanvas.height) return;
+            analysisCtx.clearRect(0, 0, analysisCanvas.width, analysisCanvas.height);
+
+            const phys = getPhysicsData();
+            const w = analysisCanvas.width;
+            const h = analysisCanvas.height;
+            const pad = 50;
+
+            // Draw Axes
+            analysisCtx.strokeStyle = '#334155';
+            analysisCtx.lineWidth = 1;
+            analysisCtx.beginPath();
+            analysisCtx.moveTo(pad, h - pad);
+            analysisCtx.lineTo(w - pad, h - pad); // X axis
+            analysisCtx.moveTo(pad, pad);
+            analysisCtx.lineTo(pad, h - pad); // Y axis
+            analysisCtx.stroke();
+
+            if (currentGraphMode === 'pos') {
+                // Plot X vs t and Y vs t
+                const maxT = Math.max(1, phys.T);
+                const maxX = Math.max(10, phys.R);
+                const maxY = Math.max(10, phys.H * 1.2);
+
+                const scaleX = (w - 2 * pad) / maxT;
+                const scaleY = (h - 2 * pad) / maxY;
+
+                // X(t) curve (Cyan)
+                analysisCtx.strokeStyle = '#38bdf8';
+                analysisCtx.lineWidth = 2;
+                analysisCtx.beginPath();
+                for (let t = 0; t <= phys.T; t += 0.05) {
+                    const xVal = phys.vx * t;
+                    const px = pad + t * scaleX;
+                    const py = (h - pad) - xVal * (scaleY * 0.5); // scaled for fit
+                    if (t === 0) analysisCtx.moveTo(px, py);
+                    else analysisCtx.lineTo(px, py);
+                }
+                analysisCtx.stroke();
+
+                // Y(t) curve (Emerald)
+                analysisCtx.strokeStyle = '#10b981';
+                analysisCtx.lineWidth = 2;
+                analysisCtx.beginPath();
+                for (let t = 0; t <= phys.T; t += 0.05) {
+                    const yVal = Math.max(0, phys.y0 + phys.vy0 * t - 0.5 * phys.g * t * t);
+                    const px = pad + t * scaleX;
+                    const py = (h - pad) - yVal * scaleY;
+                    if (t === 0) analysisCtx.moveTo(px, py);
+                    else analysisCtx.lineTo(px, py);
+                }
+                analysisCtx.stroke();
+
+                // Legend
+                analysisCtx.fillStyle = '#38bdf8';
+                analysisCtx.fillRect(w - 180, pad + 10, 12, 12);
+                analysisCtx.fillStyle = '#cbd5e1';
+                analysisCtx.font = '11px Inter';
+                analysisCtx.fillText('Horizontal Pos x(t)', w - 160, pad + 20);
+
+                analysisCtx.fillStyle = '#10b981';
+                analysisCtx.fillRect(w - 180, pad + 30, 12, 12);
+                analysisCtx.fillStyle = '#cbd5e1';
+                analysisCtx.fillText('Vertical Pos y(t)', w - 160, pad + 40);
+
+            } else if (currentGraphMode === 'vel') {
+                // Velocity vs Time
+                const maxT = Math.max(1, phys.T);
+                const maxV = Math.max(phys.v0 * 1.2, 10);
+                const scaleX = (w - 2 * pad) / maxT;
+                const scaleY = (h - 2 * pad) / (maxV * 2);
+
+                const centerY = pad + (h - 2 * pad) / 2;
+
+                // Vx(t) - constant line
+                analysisCtx.strokeStyle = '#38bdf8';
+                analysisCtx.lineWidth = 2;
+                analysisCtx.beginPath();
+                for (let t = 0; t <= phys.T; t += 0.05) {
+                    const px = pad + t * scaleX;
+                    const py = centerY - phys.vx * (scaleY * 0.5);
+                    if (t === 0) analysisCtx.moveTo(px, py);
+                    else analysisCtx.lineTo(px, py);
+                }
+                analysisCtx.stroke();
+
+                // Vy(t) - linear decreasing line
+                analysisCtx.strokeStyle = '#f43f5e';
+                analysisCtx.lineWidth = 2;
+                analysisCtx.beginPath();
+                for (let t = 0; t <= phys.T; t += 0.05) {
+                    const vyVal = phys.vy0 - phys.g * t;
+                    const px = pad + t * scaleX;
+                    const py = centerY - vyVal * (scaleY * 0.5);
+                    if (t === 0) analysisCtx.moveTo(px, py);
+                    else analysisCtx.lineTo(px, py);
+                }
+                analysisCtx.stroke();
+
+                // Legend
+                analysisCtx.fillStyle = '#38bdf8';
+                analysisCtx.fillRect(w - 180, pad + 10, 12, 12);
+                analysisCtx.fillStyle = '#cbd5e1';
+                analysisCtx.font = '11px Inter';
+                analysisCtx.fillText('Vx(t) (Constant)', w - 160, pad + 20);
+
+                analysisCtx.fillStyle = '#f43f5e';
+                analysisCtx.fillRect(w - 180, pad + 30, 12, 12);
+                analysisCtx.fillStyle = '#cbd5e1';
+                analysisCtx.fillText('Vy(t) (Linear decay)', w - 160, pad + 40);
+
+            } else if (currentGraphMode === 'angles') {
+                // Multi-angle comparison (30, 45, 60)
+                const angles = [30, 45, 60];
+                const colors = ['#38bdf8', '#10b981', '#f59e0b'];
+                const v0 = phys.v0;
+                const g = phys.g;
+
+                let globalMaxR = 0;
+                let globalMaxH = 0;
+                angles.forEach(ang => {
+                    const rad = (ang * Math.PI) / 180;
+                    const r = ((v0 * v0) * Math.sin(2 * rad)) / g;
+                    const hMax = ((v0 * Math.sin(rad)) ** 2) / (2 * g);
+                    if (r > globalMaxR) globalMaxR = r;
+                    if (hMax > globalMaxH) globalMaxH = hMax;
+                });
+
+                const scaleX = (w - 2 * pad) / (globalMaxR * 1.1);
+                const scaleY = (h - 2 * pad) / (globalMaxH * 1.2);
+
+                angles.forEach((ang, idx) => {
+                    const rad = (ang * Math.PI) / 180;
+                    const vx = v0 * Math.cos(rad);
+                    const vy0 = v0 * Math.sin(rad);
+                    const T = (2 * vy0) / g;
+
+                    analysisCtx.strokeStyle = colors[idx];
+                    analysisCtx.lineWidth = 2.5;
+                    analysisCtx.beginPath();
+                    for (let t = 0; t <= T; t += 0.05) {
+                        const x = vx * t;
+                        const y = vy0 * t - 0.5 * g * t * t;
+                        const px = pad + x * scaleX;
+                        const py = (h - pad) - y * scaleY;
+                        if (t === 0) analysisCtx.moveTo(px, py);
+                        else analysisCtx.lineTo(px, py);
+                    }
+                    analysisCtx.stroke();
+
+                    // Legend
+                    analysisCtx.fillStyle = colors[idx];
+                    analysisCtx.fillRect(w - 180, pad + (idx * 20) + 10, 12, 12);
+                    analysisCtx.fillStyle = '#cbd5e1';
+                    analysisCtx.font = '11px Inter';
+                    analysisCtx.fillText(`Angle θ = ${ang}°`, w - 160, pad + (idx * 20) + 20);
+                });
+            }
+        }
+
+        // --- Theory Derivations Toggle ---
+        function toggleDeriv(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // --- Experiment Trials & CSV Export ---
+        let trialsList = [];
+
+        function recordTrial() {
+            const phys = getPhysicsData();
+            trialsList.push({
+                id: trialsList.length + 1,
+                v0: phys.v0.toFixed(1),
+                theta: phys.thetaDeg.toFixed(0),
+                y0: phys.y0.toFixed(1),
+                g: phys.g.toFixed(2),
+                T: phys.T.toFixed(2),
+                H: phys.H.toFixed(2),
+                R: phys.R.toFixed(2)
+            });
+            renderTrialsTable();
+        }
+
+        function deleteTrial(id) {
+            trialsList = trialsList.filter(t => t.id !== id);
+            renderTrialsTable();
+        }
+
+        function renderTrialsTable() {
+            const tbody = document.getElementById('trialsTableBody');
+            if (trialsList.length === 0) {
+                tbody.innerHTML = `<tr id="emptyTrialsRow"><td colspan="9" class="p-6 text-center text-slate-500 italic">No trials recorded yet. Click "Record Current Trial" to add data.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = trialsList.map(t => `
+                <tr class="hover:bg-slate-900/50 transition">
+                    <td class="p-3 font-bold text-cyan-400">#${t.id}</td>
+                    <td class="p-3 mono">${t.v0}</td>
+                    <td class="p-3 mono">${t.theta}°</td>
+                    <td class="p-3 mono">${t.y0}</td>
+                    <td class="p-3 mono">${t.g}</td>
+                    <td class="p-3 mono">${t.T}</td>
+                    <td class="p-3 mono">${t.H}</td>
+                    <td class="p-3 mono font-semibold text-emerald-400">${t.R}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteTrial(${t.id})" class="text-rose-400 hover:text-rose-300 transition px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function exportCSV() {
+            if (trialsList.length === 0) {
+                alert('No trials available to export.');
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Trial,Speed(m/s),Angle(deg),Height(m),Gravity(m/s2),FlightTime(s),MaxHeight(m),Range(m)\n";
+            trialsList.forEach(t => {
+                csvContent += `${t.id},${t.v0},${t.theta},${t.y0},${t.g},${t.T},${t.H},${t.R}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "projectile_experiment_trials.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function checkPrediction() {
+            const userVal = parseFloat(document.getElementById('userPrediction').value);
+            const phys = getPhysicsData();
+            const resSpan = document.getElementById('predictionResult');
+
+            if (isNaN(userVal)) {
+                resSpan.className = "text-xs font-semibold mono text-amber-400";
+                resSpan.textContent = "Please enter a valid number!";
+                return;
+            }
+
+            const diff = Math.abs(userVal - phys.R);
+            const percentDiff = (diff / phys.R) * 100;
+
+            if (percentDiff <= 2) {
+                resSpan.className = "text-xs font-semibold mono text-emerald-400";
+                resSpan.textContent = `Spot on! Calculated Range = ${phys.R.toFixed(2)}m (Error: ${percentDiff.toFixed(1)}%)`;
+            } else {
+                resSpan.className = "text-xs font-semibold mono text-rose-400";
+                resSpan.textContent = `Close! Calculated Range = ${phys.R.toFixed(2)}m (Diff: ${percentDiff.toFixed(1)}%)`;
+            }
+        }
+
+        // --- Scientific Testing Suite ---
+        function runAllScientificTests() {
+            const listEl = document.getElementById('testResultsList');
+            let tests = [];
+
+            // Test 1: Zero launch speed
+            {
+                v0Input.value = 0; angleInput.value = 45; heightInput.value = 0; gravityInput.value = 9.81;
+                const p = getPhysicsData();
+                const passed = p.R === 0 && p.T === 0;
+                tests.push({ name: "1. Zero Launch Speed Test", passed, desc: `Speed = 0 m/s resulted in Range = ${p.R.toFixed(2)}m (Expected 0)` });
+            }
+
+            // Test 2: Zero angle ground landing
+            {
+                v0Input.value = 20; angleInput.value = 0; heightInput.value = 0; gravityInput.value = 9.81;
+                const p = getPhysicsData();
+                const passed = p.R === 0 && p.H === 0;
+                tests.push({ name: "2. Zero Launch Angle (Horizontal Launch)", passed, desc: `Angle = 0° resulted in Max Height = ${p.H.toFixed(2)}m (Expected 0)` });
+            }
+
+            // Test 3: 45° Max Range
+            {
+                v0Input.value = 20; angleInput.value = 45; heightInput.value = 0; gravityInput.value = 9.81;
+                const p45 = getPhysicsData();
+                
+                angleInput.value = 30;
+                const p30 = getPhysicsData();
+
+                angleInput.value = 60;
+                const p60 = getPhysicsData();
+
+                const passed = p45.R > p30.R && p45.R > p60.R;
+                tests.push({ name: "3. Maximum Range at 45° Test", passed, desc: `Range at 45° (${p45.R.toFixed(2)}m) is greater than 30° (${p30.R.toFixed(2)}m) and 60° (${p60.R.toFixed(2)}m)` });
+            }
+
+            // Test 4: Complementary Angles Range Equality
+            {
+                v0Input.value = 25; gravityInput.value = 9.81; heightInput.value = 0;
+                angleInput.value = 30;
+                const p30 = getPhysicsData();
+                angleInput.value = 60;
+                const p60 = getPhysicsData();
+
+                const diff = Math.abs(p30.R - p60.R);
+                const passed = diff < 0.01;
+                tests.push({ name: "4. Complementary Angles (30° & 60°) Equality", passed, desc: `Range at 30° (${p30.R.toFixed(2)}m) equals Range at 60° (${p60.R.toFixed(2)}m)` });
+            }
+
+            // Test 5: Gravity Variation Impact
+            {
+                v0Input.value = 20; angleInput.value = 45; heightInput.value = 0;
+                gravityInput.value = 9.81;
+                const pEarth = getPhysicsData();
+                gravityInput.value = 19.62;
+                const pDoubleG = getPhysicsData();
+
+                const passed = pDoubleG.T < pEarth.T && pDoubleG.H < pEarth.H;
+                tests.push({ name: "5. Gravity Doubling Impact Test", passed, desc: `Doubling gravity halved flight time (${pEarth.T.toFixed(2)}s -> ${pDoubleG.T.toFixed(2)}s)` });
+            }
+
+            // Test 6: Non-zero Initial Height Elevation
+            {
+                v0Input.value = 20; angleInput.value = 30; heightInput.value = 10; gravityInput.value = 9.81;
+                const pElevated = getPhysicsData();
+                
+                heightInput.value = 0;
+                const pGround = getPhysicsData();
+
+                const passed = pElevated.T > pGround.T && pElevated.R > pGround.R;
+                tests.push({ name: "6. Non-Zero Initial Height ($y_0 = 10$m) Test", passed, desc: `Elevated launch increased flight time & range correctly (${pElevated.R.toFixed(2)}m vs ${pGround.R.toFixed(2)}m)` });
+            }
+
+            // Reset inputs to standard
+            resetDefaults();
+
+            // Render test results
+            listEl.innerHTML = tests.map(t => `
+                <div class="bg-slate-950 border ${t.passed ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-rose-500/40 bg-rose-950/10'} rounded-xl p-4 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <div class="font-bold text-white text-sm flex items-center space-x-2">
+                            <span>${t.name}</span>
+                        </div>
+                        <p class="text-xs text-slate-300">${t.desc}</p>
+                    </div>
+                    <div>
+                        ${t.passed ? '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1"><i class="fa-solid fa-check"></i><span>PASSED</span></span>' : '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1"><i class="fa-solid fa-xmark"></i><span>FAILED</span></span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            resizeCanvases();
+            updateUI();
+            drawScene(0);
+        };
+    </script>
+</body>
+</html>
